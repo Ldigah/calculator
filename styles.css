@@ -29,8 +29,7 @@ body {
     display: grid;
     grid-template: repeat(4, 1fr) / 2fr 2fr 2fr 1fr 1fr;
     text-align: center;
-    line-height: 116px;
-}
+    line-height: 115px;}
 
 #backspace {
     grid-column: 5;
