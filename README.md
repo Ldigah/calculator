@@ -1,1 +1,2 @@
-# calculator
+# Calculator
+The Odin Project Lesson
