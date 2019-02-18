@@ -1,45 +1,192 @@
-const numButtons = document.querySelectorAll('.num-button');
-const opButtons = document.querySelectorAll('.op-button');
-const delButton = document.querySelector('#delete');
-const equalButton = document.querySelector('#equals');
-const backspaceButton = document.querySelector('#backspace');
-const decButton = document.querySelector('#decimal');
-const userInput = document.querySelector('.userInput');
-const result = document.querySelector('.result');
+// math functions
 
 function add(a, b) {
-    return +a + +b;
+    return a + b;
 }
 
 function subtract(a, b) {
-    return +a - +b;
+    return a - b;
 }
 
 function multiply(a, b) {
-    return +a * +b;
+    return a * b;
 }
 
 function divide(a, b) {
-    if (a == '0' || b == '0') {
-        alert('Can\'t divide by zero!');
+    if (a === 0 || b === 0) {
+        return 'Can\'t divide by zero!';
+    }
+    return a / b;
+}
+
+// user input
+
+function operate(op) {
+    const a = Number(aValue);
+    const b = Number(bValue); 
+        
+    switch (op) {
+        case '+':
+            totalValue = add(a, b);
+            break;
+        case '-':
+            totalValue = subtract(a, b);
+            break;
+        case 'x':
+            totalValue = multiply(a, b);
+            break;
+        case '÷':
+            totalValue = divide(a, b);
+            break;   
+    }
+    operator = '';
+    aValue = totalValue;
+    bValue = '';
+    tempValue = '';
+    operated = true;
+    displayTotal(totalValue);
+}
+
+function getValue(value) {
+    const ops = "+-x÷=";
+    const values = "0123456789";
+  
+    if (value === "*") value = "x";
+    if (value === "/") value = "÷";
+    if (value === "Enter") value = "=";
+
+    if (value === 'Insert' && tempValue) {
+        tempValue = (tempValue * -1).toString();
+        tempStartPos = (calcValue.length - tempValue.length) + 1;
+
+        if (tempValue > 0) {
+            calcValue = calcValue.slice(0, tempStartPos) + '(' + tempValue + ')';
+        } else {
+            calcValue = calcValue.slice(0, tempStartPos -1) + tempValue;
+        }
+    }
+
+    if (value === 'Backspace' && tempValue && !totalValue) {
+        tempValue = tempValue.slice(0, -1);
+        calcValue = calcValue.slice(0, -1);
+        displayCalc(calcValue);
+        return;
+    }
+
+    if (values.includes(value)) {
+        if ((aValue && operator) || !aValue) {
+            tempValue = tempValue.concat(value);
+            calcValue = calcValue.concat(value);
+        }
+    }
+
+    if (value === '.' && !tempValue.includes('.')) {
+        tempValue = tempValue.concat(value);
+        calcValue = calcValue.concat(value);
+    }
+
+    if (ops.includes(value) && (tempValue || operated) && value !== "=") {
+        if (aValue && !bValue) {
+          bValue = tempValue;
+          operate(operator);
+        } else {
+          aValue = tempValue;
+          operated = false;
+        }
+        operator = value;
+        calcValue = calcValue.concat(value);
+        tempValue = "";
+        totalValue = "";
+    }
+
+    if (ops.includes(value) && operator && value !== "=") {
+        operated = false;
+        operator = value;
+        calcValue = calcValue.slice(0, -1).concat(value);
+    }
+
+    if (value === "=" && (aValue && tempValue)) {
+        bValue = tempValue;
+        operate(operator);
+        aValue = totalValue; 
+    }
+    
+    displayCalc(calcValue);
+}
+
+// display
+
+function displayCalc(value) {
+    calcDisplay.textContent = value;
+}
+  
+  
+function displayTotal(value) {
+    if (value.toString().length > 13) {
+      totalDisplay.style.fontSize = "30px";
     } else {
-        return a / b;
+      totalDisplay.style.fontSize = "48px";
     }
+    totalDisplay.textContent = value;
+}
+  
+  
+function clearCalc() {
+    tempValue = "";
+    aValue = "";
+    bValue = "";
+    operator = "";
+    operated = false;
+  
+    calcValue = "";
+    totalValue = "";
+  
+    calcDisplay.textContent = "";
+    totalDisplay.textContent = "";
+  
+    calcDisplay.click();
 }
 
-function operate (operator, a, b) {
-    if(operator == "+") {
-        return add(a,b);
-    } else if(operator == "-") {
-        return subtract(a,b);
-    } else if(operator == "x") {
-        return multiply(a,b);
-    } else if(operator == "÷") {
-        return divide(a,b);
-    }
-}
+// initialize
 
+const calcDisplay = document.querySelector(".userInput")
+const totalDisplay = document.querySelector(".result")
 
+let tempValue = "";
+let aValue = "";
+let bValue = "";
+let operator = "";
+let operated = false;
 
+let calcValue = "";
+let totalValue = "";
+calcDisplay.textContent = "";
+totalDisplay.textContent = "";
 
+document.addEventListener("keydown", (evt) => {
+    if (evt.key === "Enter") evt.preventDefault();
 
+    (evt.key === "Delete") ? clearCalc() : getValue(evt.key);
+});
+
+const buttons = document.querySelectorAll(".btn");
+buttons.forEach(button => {
+    button.addEventListener("click", () => {
+        getValue(button.value);
+  })
+});
+
+const clearButton = document.querySelector("#clear");
+clearButton.addEventListener("click", () => {
+    clearCalc();
+});
+
+const delButton = document.querySelector("#del");
+delButton.addEventListener("click", () => {
+    getValue("Backspace");
+});
+
+const posNegButton = document.querySelector("#pos-neg");
+posNegButton.addEventListener("click", () => {
+    getValue("Insert");
+});
